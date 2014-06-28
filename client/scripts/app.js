@@ -47,7 +47,7 @@ var app = {
     $('#message-send').on('click', function(e) {
       e.preventDefault();
       var message = {
-        text: $('#message-input').val(),
+        message: $('#message-input').val(),
         username: app.userName,
         roomname: app.currentRoom || "lobby"
       };
@@ -114,7 +114,7 @@ var app = {
   },
 
   addMessage: function(item) {
-    var $messageHTML = $('<p class="chat"><a href="#" class="username">' + _.escape(item.username) + '</a>: ' + _.escape(item.text) + '</p>');
+    var $messageHTML = $('<p class="chat"><a href="#" class="username">' + _.escape(item.username) + '</a>: ' + _.escape(item.message) + '</p>');
     if (app.friends.hasOwnProperty(_.escape(item.username))) {
       $messageHTML.find('a').addClass('friend');
     }
