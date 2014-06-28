@@ -32,10 +32,11 @@ describe("Persistent Node Chat Server", function() {
   it("Should insert posted messages to the DB", function(done) {
     // Post a message to the node chat server:
     request({method: "POST",
-             uri: "http://127.0.0.1:8080/classes/room1",
-             form: {username: "Valjean",
+             uri: "http://127.0.0.1:8080/1/classes/messages",
+             headers: {'content-type' : 'application/json'},
+             body: JSON.stringify({username: "Valjean",
                     message: "In mercy's name, three days is all I need.",
-                    roomname: "lobby" }
+                    roomname: "lobby"})
             },
             function(error, response, body) {
               /* Now if we look in the database, we should find the
@@ -50,7 +51,7 @@ describe("Persistent Node Chat Server", function() {
               dbConnection.query( queryString, queryArgs,
                 function(err, results, fields) {
                   // Should have one result:
-                  expect(results.length).to.equal(1);
+                                    expect(results.length).to.equal(1);
                   expect(results[0].username).to.equal("Valjean");
                   expect(results[0].message).to.equal("In mercy's name, three days is all I need.");
                   expect(results[0].roomname).to.equal("lobby");
@@ -65,7 +66,7 @@ describe("Persistent Node Chat Server", function() {
 
   it("Should output all messages from the DB", function(done) {
     // Let's insert a message into the db
-    var queryString = "";
+    var queryString = "INSERT INTO Messages (id_user, message) VALUES (??, (WHERE ";
     var queryArgs = ["Javert", "Men like you can never change!"];
     /* TODO - The exact query string and query args to use
      * here depend on the schema you design, so I'll leave
@@ -75,7 +76,7 @@ describe("Persistent Node Chat Server", function() {
       function(err, results, fields) {
         /* Now query the Node chat server and see if it returns
          * the message we just inserted: */
-        request("http://127.0.0.1:8080/classes/room1",
+        request("http://127.0.0.1:8080/1/classes/messages",
           function(error, response, body) {
             var messageLog = JSON.parse(body);
             expect(messageLog[0].username).to.equal("Javert");

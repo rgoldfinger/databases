@@ -2,7 +2,7 @@
 // var database = require('./database.js').database;
 var _ = require('underscore');
 var fs = require('fs');
-var db = require('./db.js').newDB;
+var db = require('./db.js').db;
 var url = require('url');
 var path = require('path');
 
@@ -39,25 +39,39 @@ exports.handler = function(req, response) {
   //Parse the URL it is requesting (request.url)
 
 
+  //
+
+
   var data={}; //Just so the server does not crash on a different URL
   data.results = [];
 
   if (req.url === '/1/classes/messages' && req.method === 'GET') {
 
     statusCode = 200;
-    db.readAll(function(datab){
-      for(var i = 0; i < datab.length; i++){
-        data.results.push(datab[i]);
-      }
+    db.getMessages(function(datab){
+      data.results = datab;
+
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify(data));
     });
+
+
+
   } else if (req.url === '/1/classes/messages' && req.method === 'POST') {
     console.log("In Post");
     statusCode = 201;
+    data = '';
+
     req.on('data',function(chunk){
-      var message = JSON.parse(chunk.toString());
-      db.writeOne(message,function(){
+      data += chunk;
+    });
+
+    req.on('end', function(){
+
+      var message = JSON.parse(data.toString());
+      console.log("message from client is: ")
+      console.log(message);
+      db.postMessage(message,function(){
           response.writeHead(statusCode, headers);
           response.end(JSON.stringify(data));
           console.log("Just finished handling with callback");
@@ -74,8 +88,7 @@ exports.handler = function(req, response) {
       uri = '/index.html';
     }
 
-    var fileName = path.join(process.cwd(), 'client', uri);
-    console.log("Filename is ",fileName);
+    var fileName = path.join(__dirname, '../client', uri);
 
     fs.exists(fileName, function(exists) {
       if (exists) {
