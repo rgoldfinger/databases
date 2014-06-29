@@ -4,7 +4,7 @@
 var mongodb = require("mongodb");
 var request = require("request");
 
-describe("Persistent Node Chat Server", function() {
+describe("Persistent Node Archive Server", function() {
   var mongoServer = new mongodb.Server("127.0.0.1", 27017, {});
   // TODO edit this line if your database name is not "archive":
   var mongoClient = new mongodb.Db("archive", server);
@@ -77,7 +77,7 @@ describe("Persistent Node Chat Server", function() {
             expect(body)
               .toMatch(/Jono's Awesome Blank Page/);
             done();
-          }
+          });
         });
       });
     });
