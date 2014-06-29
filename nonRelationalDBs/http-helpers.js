@@ -1,7 +1,6 @@
 var path = require('path');
 var fs = require('fs');
-var archive = require('./archive-helpers');
-var Q = require('q');
+var archive = require('./db-helpers.js');
 
 
 exports.headers = headers = {
@@ -17,27 +16,23 @@ var mimeTypes = {
   '.css': 'text/css'
 };
 
-exports.serveAssets = function(res, asset) {
+
+exports.serveAsset = function(res, asset) {
   //check if file exists
   var assetUrl = asset.split('').slice(1).join('');
 
-  console.log(assetUrl, 'Archived?')
-  archive.isURLArchived(assetUrl).then(function (archived) {
+  archive.isURLArchived(assetUrl, function (archived) {
     if (archived) {
-      console.log('IT is archived and we will attempt to serve it');
       //serve archived web site
       headers['Content-Type'] = mimeTypes['.html'];
       res.writeHead(200, headers);
-      archive.getHTML(assetUrl).then(function (html) {
+      archive.getHTMLFromArchive(assetUrl, function (html) {
         res.end(html);
       });
     } else {
-      console.log('not archived')
       asset = path.join(__dirname, '/public', asset);
       fs.exists(asset, function (exists) {
-        console.log('Exists?')
         if (exists) {
-          console.log('Exists!!!')
           headers['Content-Type'] = mimeTypes[asset.split('.').reverse()[0]];
           res.writeHead(200, headers);
           var readStream = fs.createReadStream(asset);
@@ -59,7 +54,7 @@ exports.acceptPost = function(req, res) {
   req.on('end', function(){
     var url = data.slice(4);
     console.log("post ", url, ", is it archived?");
-    archive.isURLArchived(url).then(function (archived) {
+    archive.isURLArchived(url, function (archived) {
       if (archived) {
         console.log(url, " is archived");
         res.setHeader('location', 'http://127.0.0.1:8080/' + url);
@@ -69,7 +64,7 @@ exports.acceptPost = function(req, res) {
         console.log(url, " is not archived");
 
         archive.addUrlToList(url);
-        exports.serveAssets(res, 'loading.html');
+        exports.serveAsset(res, 'loading.html');
       }
     });
   });

@@ -1,14 +1,13 @@
 var path = require('path');
-var archive = require('../helpers/archive-helpers');
 // require more modules/folders here!
 var httpHelpers = require('./http-helpers.js');
 
 exports.handleRequest = function (req, res) {
   if (req.method === 'GET') {
     if (req.url === '/') {
-      httpHelpers.serveAssets(res, 'index.html');
+      httpHelpers.serveAsset(res, 'index.html');
     } else {
-      httpHelpers.serveAssets(res, req.url);
+      httpHelpers.serveAsset(res, req.url);
     }
   } else if (req.method === 'POST') {
     httpHelpers.acceptPost(req, res);
